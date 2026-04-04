@@ -210,10 +210,25 @@ echo -e "${BLUE}${STEP_DATA}: Preprocessing data...${NC}"
 # Check if data already exists
 if [ -d "data/train" ] && [ -d "data/val" ] && [ -d "data/test" ]; then
     
-    # Handle based on command line flags
+    # Handle based on command line flags or environment
     if [ "$FORCE_REPROCESS" = true ]; then
         echo ""
         echo -e "${YELLOW}--reprocess flag set: Clearing existing data and re-processing from raw_data...${NC}"
+        rm -rf data/ backup/
+        echo "This will:"
+        echo "  - Create backup of raw data"
+        echo "  - Validate and clean labels"
+        echo "  - Resize images to 640x360"
+        echo "  - Split into train/val/test (70/20/10)"
+        echo "  - Generate preprocessing report"
+        echo ""
+        if ! python preprocess_data.py; then
+            error_exit "Preprocessing failed. Check stats/v1/preprocessing_*.log for details."
+        fi
+    elif [ "$IS_KAGGLE" = true ]; then
+        # In Kaggle, always assume starting from scratch
+        echo ""
+        echo -e "${YELLOW}Starting from scratch in Kaggle: Clearing existing data and re-processing from raw_data...${NC}"
         rm -rf data/ backup/
         echo "This will:"
         echo "  - Create backup of raw data"
@@ -233,7 +248,7 @@ if [ -d "data/train" ] && [ -d "data/val" ] && [ -d "data/test" ]; then
         echo "  Test:  $(ls data/test/images 2>/dev/null | wc -l) images"
         echo ""
     else
-        # Interactive mode
+        # Interactive mode (local only)
         echo ""
         echo -e "${YELLOW}⚠️  Processed data already exists in data/ directory${NC}"
         echo ""
