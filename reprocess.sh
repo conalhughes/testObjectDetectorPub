@@ -21,9 +21,9 @@ if [ ! -d "raw_data/images" ] || [ ! -d "raw_data/labels" ]; then
     exit 1
 fi
 
-# Count files
-IMG_COUNT=$(ls raw_data/images/*.{jpg,jpeg,png,JPG,JPEG,PNG} 2>/dev/null | wc -l)
-LBL_COUNT=$(ls raw_data/labels/*.txt 2>/dev/null | wc -l)
+# Count files (use -L to follow symlinks)
+IMG_COUNT=$(find -L raw_data/images -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) 2>/dev/null | wc -l)
+LBL_COUNT=$(find -L raw_data/labels -type f -name "*.txt" 2>/dev/null | wc -l)
 
 echo "Found in raw_data/:"
 echo "  Images: $IMG_COUNT"

@@ -117,9 +117,9 @@ if [ ! -d "raw_data/images" ] || [ ! -d "raw_data/labels" ]; then
     error_exit "raw_data directory not found or incomplete. Please ensure raw_data/images/ and raw_data/labels/ exist."
 fi
 
-# Count files in raw_data
-IMAGE_COUNT=$(find raw_data/images -type f | wc -l)
-LABEL_COUNT=$(find raw_data/labels -type f -name "*.txt" | wc -l)
+# Count files in raw_data (use -L to follow symlinks)
+IMAGE_COUNT=$(find -L raw_data/images -type f | wc -l)
+LABEL_COUNT=$(find -L raw_data/labels -type f -name "*.txt" | wc -l)
 
 if [ "$IMAGE_COUNT" -eq 0 ]; then
     error_exit "No images found in raw_data/images/. Please add your dataset."
