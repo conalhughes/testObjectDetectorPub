@@ -250,28 +250,42 @@ def plot_training_results(run_name):
     logger.info("GENERATING TRAINING PLOTS")
     logger.info("=" * 70)
     
-    run_dir = os.path.join(config.RUNS_DIR, run_name)
+    # YOLOv8 creates nested structure: runs/detect/runs/{run_name}
+    # Try multiple possible paths
+    possible_run_dirs = [
+        os.path.join(config.RUNS_DIR, 'detect', 'runs', run_name),  # Actual YOLOv8 path
+        os.path.join(config.RUNS_DIR, run_name),  # Alternative path
+    ]
+    
+    run_dir = None
+    for path in possible_run_dirs:
+        if os.path.exists(path):
+            run_dir = path
+            break
+    
+    if not run_dir:
+        logger.error(f"Run directory not found for: {run_name}")
+        logger.warning(f"Checked locations:")
+        for path in possible_run_dirs:
+            logger.warning(f"  - {path}")
+        logger.warning("Skipping training plots generation. Training completed successfully.")
+        return
     
     # YOLOv8 saves results.csv in the run directory
     results_csv = os.path.join(run_dir, 'results.csv')
     
-    # Check multiple possible locations for results.csv
+    # Check if results.csv exists
     if not os.path.exists(results_csv):
-        # Try alternative path (some YOLOv8 versions use different structure)
-        alt_results_csv = os.path.join(run_dir, 'weights', '../results.csv')
-        if os.path.exists(alt_results_csv):
-            results_csv = alt_results_csv
-        else:
-            logger.warning(f"Results file not found at: {results_csv}")
-            logger.warning(f"Checking directory contents...")
-            if os.path.exists(run_dir):
-                logger.info(f"Files in {run_dir}:")
-                for item in os.listdir(run_dir):
-                    logger.info(f"  - {item}")
-            else:
-                logger.error(f"Run directory not found: {run_dir}")
-            logger.warning("Skipping training plots generation. Training completed successfully.")
-            return
+        logger.warning(f"Results file not found at: {results_csv}")
+        logger.warning(f"Checking directory contents...")
+        logger.info(f"Files in {run_dir}:")
+        try:
+            for item in os.listdir(run_dir):
+                logger.info(f"  - {item}")
+        except Exception as e:
+            logger.error(f"Could not list directory: {e}")
+        logger.warning("Skipping training plots generation. Training completed successfully.")
+        return
     
     # Read results
     try:

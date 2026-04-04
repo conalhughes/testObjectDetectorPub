@@ -30,11 +30,12 @@ for arg in "$@"; do
             echo "Testing Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            # Activate venv if it exists to show testing help
+            # Show help (works with or without venv)
             if [ -d ".venv" ]; then
                 source .venv/bin/activate 2>/dev/null && python test_cli.py --help || echo "  (install dependencies first to see all options)"
             else
-                echo "  (run ./train.sh first to create venv and see all options)"
+                # Try with system python (Kaggle)
+                python test_cli.py --help 2>/dev/null || echo "  (install dependencies first to see all options)"
             fi
             exit 0
             ;;
@@ -63,8 +64,15 @@ error_exit() {
     exit 1
 }
 
-# Check if venv exists
-if [ ! -d ".venv" ]; then
+# Detect if running in Kaggle environment
+IS_KAGGLE=false
+if [ -d "/kaggle/working" ]; then
+    IS_KAGGLE=true
+    echo -e "${YELLOW}✓ Kaggle environment detected${NC}"
+fi
+
+# Check if venv exists or if in Kaggle
+if [ "$IS_KAGGLE" = false ] && [ ! -d ".venv" ]; then
     error_exit "Virtual environment not found! Please run ./train.sh first."
 fi
 
@@ -73,9 +81,11 @@ if [ ! -f "test_cli.py" ]; then
     error_exit "test_cli.py not found! Please ensure you're in the correct directory."
 fi
 
-# Activate venv
-echo -e "${BLUE}Activating virtual environment...${NC}"
-source .venv/bin/activate || error_exit "Failed to activate virtual environment"
+# Activate venv if not in Kaggle
+if [ "$IS_KAGGLE" = false ]; then
+    echo -e "${BLUE}Activating virtual environment...${NC}"
+    source .venv/bin/activate || error_exit "Failed to activate virtual environment"
+fi
 
 # Check if model exists (check generic pattern since version might be changed via args)
 MODEL_COUNT=$(find models -name "*_best.pt" 2>/dev/null | wc -l)
