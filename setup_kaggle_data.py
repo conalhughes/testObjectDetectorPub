@@ -111,14 +111,14 @@ def main():
         if os.path.exists('/kaggle/input'):
             datasets = [d for d in os.listdir('/kaggle/input') if os.path.isdir(f'/kaggle/input/{d}')]
             if len(datasets) == 1:
-                kaggle_dataset_path = f'/kaggle/input/{datasets[0]}'
+                kaggle_dataset_path = f'/kaggle/input/datasets/{datasets[0]}'
                 print(f"Auto-detected dataset: {kaggle_dataset_path}")
             else:
                 print("Multiple datasets found. Please specify which one to use:")
                 print("\nUsage: python setup_kaggle_data.py /kaggle/input/your-dataset-name")
                 print("\nAvailable datasets:")
                 for ds in datasets:
-                    print(f"  - /kaggle/input/{ds}")
+                    print(f"  - /kaggle/input/datasets/{ds}")
                 sys.exit(1)
         else:
             print("Not in Kaggle environment. No setup needed.")
