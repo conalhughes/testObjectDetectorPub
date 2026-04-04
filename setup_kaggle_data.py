@@ -4,17 +4,19 @@ Setup script for Kaggle environment
 Downloads dataset from Kaggle and sets up raw_data/ directory
 
 Usage:
-    # Auto-detect single dataset
+    # Auto-detect dataset (searches /kaggle/input recursively)
     python setup_kaggle_data.py
     
-    # Specify dataset path
-    python setup_kaggle_data.py /kaggle/input/your-dataset-name
-    
+    # Specify dataset path explicitly
+    python setup_kaggle_data.py /kaggle/input/datasets/conalhughes/testballdataset1
+
 This script:
 - Detects if running in Kaggle environment
+- Auto-detects dataset location (recursive search for images/labels dirs)
 - Creates raw_data/ directory structure
 - Symlinks Kaggle dataset to raw_data/ (saves disk space)
 - Validates images and labels exist
+- Works with any dataset path structure
 """
 
 import os
@@ -99,26 +101,69 @@ def setup_kaggle_data(kaggle_dataset_path):
     print()
 
 
+def find_kaggle_dataset(root_path='/kaggle/input', max_depth=5):
+    """
+    Recursively search for a dataset directory.
+    Looks for directories containing 'images' or 'labels' subdirectories.
+    
+    Args:
+        root_path: Root path to search from
+        max_depth: Maximum directory depth to search
+    
+    Returns:
+        Path to dataset directory or None if not found
+    """
+    def search_recursive(path, current_depth):
+        if current_depth > max_depth or not os.path.isdir(path):
+            return None
+        
+        # Check if this directory looks like a dataset
+        has_images = os.path.isdir(os.path.join(path, 'images'))
+        has_labels = os.path.isdir(os.path.join(path, 'labels'))
+        
+        if has_images or has_labels:
+            return path
+        
+        # Search subdirectories
+        try:
+            for item in os.listdir(path):
+                item_path = os.path.join(path, item)
+                if os.path.isdir(item_path) and not item.startswith('.'):
+                    result = search_recursive(item_path, current_depth + 1)
+                    if result:
+                        return result
+        except (PermissionError, OSError):
+            pass
+        
+        return None
+    
+    if os.path.exists(root_path):
+        return search_recursive(root_path, 0)
+    return None
+
+
 def main():
     """Main entry point."""
-    # Default Kaggle dataset path - user should modify this
-    # Format: /kaggle/input/{dataset-name}
+    # Allow user to specify dataset path as argument
+    # Or auto-detect if running in Kaggle environment
     
     if len(sys.argv) > 1:
         kaggle_dataset_path = sys.argv[1]
     else:
-        # Try to auto-detect dataset
+        # Try to auto-detect dataset in Kaggle environment
         if os.path.exists('/kaggle/input'):
-            datasets = [d for d in os.listdir('/kaggle/input') if os.path.isdir(f'/kaggle/input/{d}')]
-            if len(datasets) == 1:
-                kaggle_dataset_path = f'/kaggle/input/datasets/{datasets[0]}'
-                print(f"Auto-detected dataset: {kaggle_dataset_path}")
+            print("Auto-detecting dataset in /kaggle/input...")
+            kaggle_dataset_path = find_kaggle_dataset('/kaggle/input')
+            
+            if kaggle_dataset_path:
+                print(f"✓ Auto-detected dataset: {kaggle_dataset_path}")
             else:
-                print("Multiple datasets found. Please specify which one to use:")
-                print("\nUsage: python setup_kaggle_data.py /kaggle/input/your-dataset-name")
-                print("\nAvailable datasets:")
-                for ds in datasets:
-                    print(f"  - /kaggle/input/datasets/{ds}")
+                print("✗ No dataset found in /kaggle/input")
+                print("\nUsage: python setup_kaggle_data.py /path/to/dataset")
+                print("\nDataset should have this structure:")
+                print("  dataset/")
+                print("    ├── images/")
+                print("    └── labels/")
                 sys.exit(1)
         else:
             print("Not in Kaggle environment. No setup needed.")
