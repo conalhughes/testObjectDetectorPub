@@ -139,40 +139,73 @@ fi
 echo "✓ All prerequisites checked"
 echo ""
 
-# Step 1: Create virtual environment
-echo -e "${BLUE}Step 1/4: Setting up virtual environment...${NC}"
-if [ -d ".venv" ]; then
-    echo "Virtual environment already exists."
-else
-    echo "Creating virtual environment..."
-    if ! python -m venv .venv; then
-        error_exit "Failed to create virtual environment. Try: pip install virtualenv"
-    fi
-    echo -e "${GREEN}✓ Virtual environment created${NC}"
+# Detect if running in Kaggle environment
+IS_KAGGLE=false
+if [ -d "/kaggle/working" ]; then
+    IS_KAGGLE=true
+    echo -e "${YELLOW}✓ Kaggle environment detected${NC}"
+    echo "Skipping virtual environment creation (using system Python)"
+    echo ""
 fi
-echo ""
 
-# Step 2: Activate virtual environment and install dependencies
-echo -e "${BLUE}Step 2/4: Installing dependencies...${NC}"
-source .venv/bin/activate || error_exit "Failed to activate virtual environment"
+# Step 1: Create virtual environment (skip in Kaggle)
+if [ "$IS_KAGGLE" = false ]; then
+    echo -e "${BLUE}Step 1/4: Setting up virtual environment...${NC}"
+    if [ -d ".venv" ]; then
+        echo "Virtual environment already exists."
+    else
+        echo "Creating virtual environment..."
+        if ! python -m venv .venv; then
+            error_exit "Failed to create virtual environment. Try: pip install virtualenv"
+        fi
+        echo -e "${GREEN}✓ Virtual environment created${NC}"
+    fi
+    echo ""
+    
+    # Step 2: Activate virtual environment and install dependencies
+    echo -e "${BLUE}Step 2/4: Installing dependencies...${NC}"
+    source .venv/bin/activate || error_exit "Failed to activate virtual environment"
+else
+    echo -e "${BLUE}Step 1/4: Checking dependencies...${NC}"
+fi
 
-# Upgrade pip
-echo "Upgrading pip..."
-if ! pip install --upgrade pip > /dev/null 2>&1; then
-    echo -e "${YELLOW}Warning: Failed to upgrade pip, continuing with existing version${NC}"
+# Upgrade pip (skip in Kaggle as it's already optimized)
+if [ "$IS_KAGGLE" = false ]; then
+    echo "Upgrading pip..."
+    if ! pip install --upgrade pip > /dev/null 2>&1; then
+        echo -e "${YELLOW}Warning: Failed to upgrade pip, continuing with existing version${NC}"
+    fi
 fi
 
 # Install requirements
-echo "Installing required packages (this may take a few minutes)..."
-if ! pip install -r requirements.txt; then
-    error_exit "Failed to install requirements. Check your internet connection and requirements.txt"
+if [ "$IS_KAGGLE" = false ]; then
+    echo "Installing required packages (this may take a few minutes)..."
+    if ! pip install -r requirements.txt; then
+        error_exit "Failed to install requirements. Check your internet connection and requirements.txt"
+    fi
+else
+    echo "Verifying required packages are available..."
+    # In Kaggle, just check if key packages are installed
+    python -c "import torch, ultralytics, cv2, pandas, matplotlib, yaml" 2>/dev/null || {
+        echo -e "${YELLOW}Warning: Some packages may be missing, installing requirements...${NC}"
+        pip install -r requirements.txt || echo -e "${YELLOW}Note: Some packages may not install in Kaggle, but model training may still work${NC}"
+    }
 fi
 
 echo -e "${GREEN}✓ Dependencies installed${NC}"
 echo ""
 
-# Step 3: Preprocess data
-echo -e "${BLUE}Step 3/4: Preprocessing data...${NC}"
+# Set step numbers based on environment
+if [ "$IS_KAGGLE" = false ]; then
+    STEP_DATA="Step 3/4"
+    STEP_TRAIN="Step 4/4"
+else
+    STEP_DATA="Step 2/3"
+    STEP_TRAIN="Step 3/3"
+fi
+
+# Step 3 or 2: Preprocess data
+echo -e "${BLUE}${STEP_DATA}: Preprocessing data...${NC}"
 
 # Check if data already exists
 if [ -d "data/train" ] && [ -d "data/val" ] && [ -d "data/test" ]; then
@@ -256,8 +289,8 @@ fi
 echo -e "${GREEN}✓ Data preprocessing complete${NC}"
 echo ""
 
-# Step 4: Train model
-echo -e "${BLUE}Step 4/4: Training model...${NC}"
+# Step 4 or 3: Train model
+echo -e "${BLUE}${STEP_TRAIN}: Training model...${NC}"
 
 # Display training arguments if any
 if [ ${#TRAIN_ARGS[@]} -gt 0 ]; then
