@@ -67,7 +67,7 @@ Common options:
 - `--model-size SIZE` - Model size: n, s, m, l, x (default: n)
 - `--model-version VER` - Version name (default: v1)
 - `--device DEVICE` - cuda or cpu (default: cuda with auto-fallback)
-- `--img-width W --img-height H` - Image size (default: 640x360)
+- `--img-width W --img-height H` - Image size (default: 544x448)
 
 ---
 

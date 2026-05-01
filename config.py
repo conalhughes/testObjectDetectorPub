@@ -13,7 +13,7 @@ MODEL_SIZE = "n"  # Options: 'n' (nano), 's' (small), 'm' (medium), 'l' (large),
 # ============================================================================
 # DATA CONFIGURATION
 # ============================================================================
-INPUT_SIZE = (640, 360)  # Image size for training - matches camera resolution (1280x720 / 2)
+INPUT_SIZE = (544, 448)  # Image size for training - matches camera resolution (1280x720 / 2)
 BATCH_SIZE = 16
 NUM_WORKERS = 4  # Number of workers for data loading
 NUM_CLASSES = 1  # Number of object classes (change based on your dataset)

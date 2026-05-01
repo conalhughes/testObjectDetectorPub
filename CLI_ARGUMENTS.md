@@ -45,8 +45,8 @@ You can now override any `config.py` setting via command-line arguments without 
 
 #### Image Size
 ```bash
---img-width W              # Image width (default: 640)
---img-height H             # Image height (default: 360)
+--img-width W              # Image width for training (default: 544 from config.INPUT_SIZE)
+--img-height H             # Image height for training (default: 448 from config.INPUT_SIZE)
 ```
 
 #### Data Augmentation
@@ -90,8 +90,8 @@ You can now override any `config.py` setting via command-line arguments without 
 ```bash
 --model-name NAME          # Model name (default: ball_detector)
 --model-version VER        # Model version (default: v1)
---img-width W              # Image width (default: 640)
---img-height H             # Image height (default: 360)
+--img-width W              # Image width for training (default: 544 from config.INPUT_SIZE)
+--img-height H             # Image height for training (default: 448 from config.INPUT_SIZE)
 --batch-size N             # Batch size (default: 16)
 --device DEVICE            # cuda or cpu (default: cuda)
 --conf-threshold T         # Confidence threshold (default: 0.25)

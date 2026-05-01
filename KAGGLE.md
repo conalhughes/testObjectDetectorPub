@@ -157,8 +157,6 @@ After training completes:
   --epochs 100 \\
   --batch-size 32 \\
   --learning-rate 0.01 \\
-  --img-width 640 \\
-  --img-height 360 \\
   --device cuda
 ```
 

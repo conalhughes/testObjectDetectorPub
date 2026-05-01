@@ -40,7 +40,7 @@ This document provides a comprehensive reference for all configurable parameters
 
 ### `INPUT_SIZE`
 - **Type:** Tuple (width, height)
-- **Default:** `(640, 360)`
+- **Default:** `(544, 448)`
 - **Description:** Image dimensions for training.
 - **CLI Arguments:** `--img-width`, `--img-height`
 - **Notes:** 
