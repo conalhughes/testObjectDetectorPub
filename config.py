@@ -51,7 +51,7 @@ TEST_RATIO = 0.1   # 10% for testing
 
 # Image preprocessing
 RESIZE_IMAGES = True  # Whether to resize images during preprocessing
-TARGET_SIZE = (640, 360)  # Target size for resizing (width, height) - matches 1280x720 aspect ratio
+TARGET_SIZE = (544, 448)  # Target size for resizing (width, height) - matches 1280x720 aspect ratio
 MAINTAIN_ASPECT_RATIO = True  # Maintain aspect ratio when resizing (pad with black)
 IMAGE_QUALITY = 95  # JPEG quality for saved images (1-100)
 

@@ -233,7 +233,7 @@ This document provides a comprehensive reference for all configurable parameters
 
 ### `TARGET_SIZE`
 - **Type:** Tuple (width, height)
-- **Default:** `(640, 360)`
+- **Default:** `(544, 448)`
 - **Description:** Target size for image resizing during preprocessing.
 - **Notes:** Should match `INPUT_SIZE`
 
