@@ -1,7 +1,42 @@
 """
 Configuration file for YOLOv8 Object Detection
 Edit these global variables between runs
+
+Classes are automatically loaded from classes_config.yaml
 """
+
+import os
+import yaml
+
+# ============================================================================
+# CLASS CONFIGURATION (Loaded from classes_config.yaml)
+# ============================================================================
+def load_classes_config(config_file='classes_config.yaml'):
+    """Load class configuration from YAML file."""
+    if not os.path.exists(config_file):
+        print(f"Warning: {config_file} not found. Using default configuration.")
+        return {'dataset_name': 'Default', 'classes': [{'id': 0, 'name': 'ball', 'color': [0, 255, 0]}]}
+    
+    try:
+        with open(config_file, 'r') as f:
+            config = yaml.safe_load(f)
+            if config is None:
+                print(f"Warning: {config_file} is empty. Using default configuration.")
+                return {'dataset_name': 'Default', 'classes': [{'id': 0, 'name': 'ball', 'color': [0, 255, 0]}]}
+            return config
+    except Exception as e:
+        print(f"Warning: Failed to load {config_file}: {e}. Using default configuration.")
+        return {'dataset_name': 'Default', 'classes': [{'id': 0, 'name': 'ball', 'color': [0, 255, 0]}]}
+
+# Load class configuration
+_classes_config = load_classes_config()
+DATASET_NAME = _classes_config.get('dataset_name', 'Default')
+_classes_list = _classes_config.get('classes', [])
+
+# Extract class names in order of ID
+NUM_CLASSES = len(_classes_list)
+CLASS_NAMES = [c['name'] for c in sorted(_classes_list, key=lambda x: x.get('id', 0))]
+CLASS_COLORS = [c.get('color', [0, 255, 0]) for c in sorted(_classes_list, key=lambda x: x.get('id', 0))]
 
 # ============================================================================
 # MODEL CONFIGURATION
@@ -16,8 +51,7 @@ MODEL_SIZE = "n"  # Options: 'n' (nano), 's' (small), 'm' (medium), 'l' (large),
 INPUT_SIZE = (544, 448)  # Image size for training - matches camera resolution (1280x720 / 2)
 BATCH_SIZE = 16
 NUM_WORKERS = 4  # Number of workers for data loading
-NUM_CLASSES = 1  # Number of object classes (change based on your dataset)
-CLASS_NAMES = ['ball']  # List of class names
+# NUM_CLASSES and CLASS_NAMES are loaded from classes_config.yaml above
 
 # ============================================================================
 # TRAINING CONFIGURATION

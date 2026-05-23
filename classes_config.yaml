@@ -1,0 +1,30 @@
+# Class Configuration for Multi-Dataset Support
+# Define your object detection classes here
+# This file is read by config.py and train scripts
+
+# Dataset name (informational)
+dataset_name: "Ball Detector"
+
+# Classes: List of class names in order
+# The index (0, 1, 2, etc.) is the class ID used in training
+classes:
+  - id: 0
+    name: "ball"
+    # Optional: Add color for visualization
+    color: [0, 255, 0]
+
+# Example for multi-class detection (uncomment to use):
+# dataset_name: "RoboCup Multi-Object Detector"
+# classes:
+#   - id: 0
+#     name: "ball"
+#     color: [0, 255, 0]
+#   - id: 1
+#     name: "robot"
+#     color: [255, 0, 0]
+#   - id: 2
+#     name: "goal"
+#     color: [0, 0, 255]
+#   - id: 3
+#     name: "field_line"
+#     color: [255, 255, 0]

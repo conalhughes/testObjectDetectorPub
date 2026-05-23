@@ -2,6 +2,10 @@
 # YOLOv8 Training Pipeline Script
 # Creates virtual environment, installs dependencies, and runs training pipeline
 #
+# Multi-Class Support:
+#   Configure classes in CLASS_CONFIGURATION.ipynb or edit classes_config.yaml
+#   Classes are automatically loaded by config.py during training
+#
 # Usage:
 #   ./train.sh [OPTIONS] [TRAIN_OPTIONS]
 #
